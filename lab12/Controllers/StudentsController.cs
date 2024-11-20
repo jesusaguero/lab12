@@ -1,4 +1,5 @@
 ﻿using lab12.Models;
+using lab12.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,43 @@ namespace lab12.Controllers
             }
             return student;
         }
+
+        [HttpGet]
+        public List<StudentRequestV1> GetStudentsByNameEmail()
+        {
+            var students = _context.Students
+                .Where(s => s.Active)
+                .OrderByDescending(s => s.LastName)
+                .Select(s => new StudentRequestV1
+                {
+                    FirstName = s.FirstName,
+                    LastName = s.LastName,
+                    Email = s.Email
+                })
+                .ToList();
+
+            return students;
+        }
+
+        [HttpGet]
+        public List<StudentRequestV2> GetStudentsByNameAndGrade()
+        {
+            var students = _context.Students
+                .Where(s => s.Active) 
+                .OrderByDescending(s => s.FirstName) 
+                .Select(s => new StudentRequestV2
+                {
+                    FirstName = s.FirstName, 
+                    GradeId = s.GradeId    
+                })
+                .ToList();
+
+            return students;
+        }
+
+
+
+
 
         [HttpPost]
         public ActionResult<Student> Create(Student student)

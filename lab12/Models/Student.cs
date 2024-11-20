@@ -11,6 +11,7 @@
 
         //Crear llave foránea
         public int GradeId { get; set; }
-        public Grade Grade { get; set; }
+
+
     }
 }
