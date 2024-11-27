@@ -1,4 +1,5 @@
 ﻿using lab12.Models;
+using lab12.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,6 +47,22 @@ namespace lab12.Controllers
             return CreatedAtAction(nameof(GetById), new { id = course.CourseID }, course);
         }
 
+        [HttpPost]
+        public ActionResult<Course> InsertByNameAndCredit(CourseRequestV1 request)
+        {
+            var course = new Course
+            {
+                Name = request.Name,
+                Credit = request.Credit
+            };
+
+            _context.Courses.Add(course);
+            _context.SaveChanges();
+
+            return CreatedAtAction(nameof(GetById), new { id = course.CourseID }, course);
+        }
+
+
         [HttpPut("{id}")]
         public IActionResult Update(int id, Course course)
         {
@@ -82,5 +99,40 @@ namespace lab12.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete]
+        public IActionResult DeleteCourses([FromBody] CourseRequestV3 request)
+        {
+            foreach (var course in request.Courses)
+            {
+                var existingCourse = _context.Courses.FirstOrDefault(c => c.CourseID == course.CourseID);
+                if (existingCourse != null)
+                {
+                    _context.Courses.Remove(existingCourse);
+                }
+            }
+
+            _context.SaveChanges();
+            return NoContent();
+        }
+
+
+        [HttpPost]
+        public IActionResult DeleteById(CourseRequestV2 request)
+        {
+            var course = _context.Courses.FirstOrDefault(c => c.CourseID == request.CourseID);
+            if (course == null)
+            {
+                return NotFound("Curso no encontrado.");
+            }
+
+            _context.Courses.Remove(course);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
+
+
+
     }
 }

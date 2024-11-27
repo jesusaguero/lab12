@@ -1,4 +1,5 @@
 ﻿using lab12.Models;
+using lab12.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -55,6 +56,23 @@ namespace lab12.Controllers
 
             return CreatedAtAction(nameof(GetById), new { id = enrollment.EnrollmentID }, enrollment);
         }
+
+        [HttpPost]
+        public IActionResult EnrollStudent([FromBody] EnrrollmentRequestV1 request)
+        {
+            var enrollments = request.CourseIDs.Select(courseId => new Enrollment
+            {
+                StudentID = request.IdStudent,
+                CourseID = courseId,
+                Date = DateTime.Now
+            }).ToList();
+
+            _context.Enrollments.AddRange(enrollments);
+            _context.SaveChanges();
+
+            return Created("Matriculation completed", enrollments);
+        }
+
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, Enrollment enrollment)

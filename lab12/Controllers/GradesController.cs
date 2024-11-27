@@ -1,4 +1,5 @@
 ﻿using lab12.Models;
+using lab12.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,22 @@ namespace lab12.Controllers
             return CreatedAtAction(nameof(GetById), new { id = grade.GradeID }, grade);
         }
 
+        [HttpPost]
+        public ActionResult<Grade> Insert(GradeRequestV1 request)
+        {
+            var grade = new Grade
+            {
+                Name = request.Name,
+                Description = request.Description
+            };
+
+            _context.Grades.Add(grade);
+            _context.SaveChanges();
+
+            return CreatedAtAction(nameof(GetById), new { id = grade.GradeID }, grade);
+        }
+
+
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, Grade grade)
@@ -87,5 +104,19 @@ namespace lab12.Controllers
 
             return NoContent(); 
         }
+
+        [HttpPost]
+        public IActionResult DeleteById(GradeRequestV2 request)
+        {
+            var grade = _context.Grades.FirstOrDefault(g => g.GradeID == request.GradeID && g.Active);
+            if (grade != null)
+            {
+                grade.Active = false;
+                _context.SaveChanges();
+            }
+
+            return NoContent();
+        }
+
     }
 }

@@ -85,6 +85,44 @@ namespace lab12.Controllers
             return CreatedAtAction(nameof(GetById), new { id = student.StudentID }, student);
         }
 
+        [HttpPost]
+        public ActionResult<Student> CreateStudentRequestV3(StudentRequestV3 request)
+        {
+            var student = new Student
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Phone = request.Phone,
+                Email = request.Email,
+                GradeId = request.GradeId,
+            };
+
+            _context.Students.Add(student);
+            _context.SaveChanges();
+
+            return CreatedAtAction(nameof(GetById), new { id = student.StudentID }, student);
+        }
+
+        [HttpPost]
+        public IActionResult InsertStudentsByGrade(StudentRequestV4 request)
+        {
+            if (request.Students == null || request.Students.Count == 0)
+            {
+                return BadRequest("La lista de estudiantes está vacía.");
+            }
+
+            foreach (var student in request.Students)
+            {
+                student.GradeId = request.IdGrade;  // Asocia el IdGrade a cada estudiante
+                _context.Students.Add(student);     // Inserta cada estudiante
+            }
+
+            _context.SaveChanges();  // Guarda los cambios en la base de datos
+            return CreatedAtAction(nameof(GetById), new { id = request.Students.First().StudentID }, request.Students);
+        }
+
+
+
         [HttpPut("{id}")]
         public IActionResult Update(int id, Student student)
         {
@@ -109,6 +147,35 @@ namespace lab12.Controllers
 
             return NoContent(); 
         }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdatePhoneEmail(int id, DatosRequestV1 request)
+        {
+            var student = _context.Students.FirstOrDefault(s => s.StudentID == id);
+            if (student != null)
+            {
+                student.Phone = request.Phone;
+                student.Email = request.Email;
+                _context.SaveChanges();
+                return NoContent();
+            }
+            return NotFound();
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateName(int id, DatosRequestV2 request)
+        {
+            var student = _context.Students.FirstOrDefault(s => s.StudentID == id);
+            if (student != null)
+            {
+                student.FirstName = request.FirstName;
+                student.LastName = request.LastName;
+                _context.SaveChanges();
+                return NoContent();
+            }
+            return NotFound();
+        }
+
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
